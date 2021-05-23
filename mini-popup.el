@@ -185,7 +185,7 @@
   (overlay-put mini-popup--hide 'window (selected-window))
   (overlay-put mini-popup--hide 'priority 1000)
   (overlay-put mini-popup--hide 'after-string "\n\n")
-  (set-window-vscroll nil 10000 'pixelwise) ;; TODO hack scroll to end
+  (set-window-vscroll nil 100)
   (window-resize nil (- (window-height))))
 
 (provide 'mini-popup)
