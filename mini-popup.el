@@ -115,9 +115,13 @@
   "Resize according to `mini-popup--height-function'."
   (when mini-popup--height-function
     (let ((window-min-height 1)
-          (window-min-width 1))
+          (window-min-width 1)
+          (frame-resize-pixelwise t))
       (set-frame-size mini-popup--frame
-                      (frame-pixel-width mini-popup--frame)
+                      (- (frame-pixel-width mini-popup--frame)
+                         (* 2 (alist-get 'child-frame-border-width mini-popup--frame-parameters))
+                         (alist-get 'left-fringe mini-popup--frame-parameters)
+                         (alist-get 'right-fringe mini-popup--frame-parameters))
                       (funcall mini-popup--height-function)
                       'pixelwise))))
 
