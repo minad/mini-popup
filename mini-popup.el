@@ -37,15 +37,15 @@
 
 (defface mini-popup-background
   '((((class color) (min-colors 88) (background dark))
-     :background "#222")
+     :background "#191a1b")
     (((class color) (min-colors 88) (background light))
-     :background "#ffe")
+     :background "#f0f0f0")
     (t :background "gray"))
   "Face used to for the popup background.")
 
 (defface mini-popup-border
-  '((((class color) (min-colors 88) (background dark)) :background "#444")
-    (((class color) (min-colors 88) (background light)) :background "#bbb")
+  '((((class color) (min-colors 88) (background dark)) :background "#323232")
+    (((class color) (min-colors 88) (background light)) :background "#d7d7d7")
     (t :background "gray"))
   "The background color used for the thin border.")
 
