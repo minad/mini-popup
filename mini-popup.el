@@ -79,37 +79,41 @@
     (desktop-dont-save . t)))
 
 (defvar mini-popup--frame nil)
-(defvar-local mini-popup--hide nil)
+(defvar-local mini-popup--overlay nil)
 
 (define-minor-mode mini-popup-mode
   "Mini popup."
   :global t
   (if mini-popup-mode
       (progn
-        (add-hook 'minibuffer-setup-hook #'mini-popup--setup-hook)
-        (add-hook 'minibuffer-exit-hook #'mini-popup--exit-hook))
-    (remove-hook 'minibuffer-setup-hook #'mini-popup--setup-hook)
-    (remove-hook 'minibuffer-exit-hook #'mini-popup--exit-hook)
+        (add-hook 'minibuffer-setup-hook #'mini-popup--setup)
+        (add-hook 'minibuffer-exit-hook #'mini-popup--exit))
+    (remove-hook 'minibuffer-setup-hook #'mini-popup--setup)
+    (remove-hook 'minibuffer-exit-hook #'mini-popup--exit)
     (when mini-popup--frame
       (delete-frame mini-popup--frame)
       (setq mini-popup--frame nil))))
 
-(defun mini-popup--setup-hook ()
+(defun mini-popup--setup ()
   "Minibuffer setup hook."
-  (when mini-popup--hide
-    (delete-overlay mini-popup--hide))
+  (when mini-popup--overlay
+    (delete-overlay mini-popup--overlay))
   (when mini-popup-mode
     (mini-popup--setup-buffer)
     (mini-popup--setup-frame)
     (mini-popup--setup-overlay)))
 
-(defun mini-popup--exit-hook ()
+(defun mini-popup--exit ()
   "Minibuffer exit hook."
+  ;; Execute after leaving the minibuffer
+  (run-at-time 0 nil #'mini-popup--hide))
+
+(defun mini-popup--hide ()
   (when mini-popup-mode
-    (if (> (recursion-depth) 1)
-        ;; TODO HACK: Restart old minibuffer
-        (run-at-time 0 nil #'mini-popup--setup-hook)
-      (make-frame-invisible mini-popup--frame))))
+    (let ((win (active-minibuffer-window)))
+      (if win
+          (with-selected-window win (mini-popup--setup))
+        (make-frame-invisible mini-popup--frame)))))
 
 (defun mini-popup--resize ()
   "Resize according to `mini-popup--height-function'."
@@ -136,7 +140,7 @@
               left-margin-width 0
               right-margin-width 0
               fringes-outside-margins 0)
-  (add-hook 'post-command-hook #'mini-popup--setup-hook 99 'local))
+  (add-hook 'post-command-hook #'mini-popup--setup 99 'local))
 
 ;; Function adapted from posframe.el by tumashu
 (defun mini-popup--setup-frame ()
@@ -181,10 +185,10 @@
   (let ((pt (point)))
     (with-selected-window (frame-root-window mini-popup--frame)
       (goto-char pt)))
-  (setq mini-popup--hide (make-overlay (point-max) (point-max) nil t t))
-  (overlay-put mini-popup--hide 'window (selected-window))
-  (overlay-put mini-popup--hide 'priority 1000)
-  (overlay-put mini-popup--hide 'after-string "\n\n")
+  (setq mini-popup--overlay (make-overlay (point-max) (point-max) nil t t))
+  (overlay-put mini-popup--overlay 'window (selected-window))
+  (overlay-put mini-popup--overlay 'priority 1000)
+  (overlay-put mini-popup--overlay 'after-string "\n\n")
   (set-window-vscroll nil 100)
   (window-resize nil (- (window-height))))
 
