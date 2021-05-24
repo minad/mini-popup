@@ -12,6 +12,12 @@ Install with ~package-install-from-file~ and enable with ~M-x mini-popup-mode RE
     (* (1+ (if vertico--input vertico-count 0)) (default-line-height)))
   (setq mini-popup--height-function #'mini-popup-height-fixed)
 
+  ;; Disable the minibuffer resizing of Vertico (HACK)
+  (advice-add #'vertico--resize-window :around
+              (lambda (&rest args)
+                (unless mini-popup-mode
+                  (apply args))))
+
   ;; Ensure that the popup is updated after refresh (Consult-specific)
-  (add-hook 'consult--completion-refresh-hook #'mini-popup--setup-hook 99)
+  (add-hook 'consult--completion-refresh-hook #'mini-popup--setup 99)
 #+end_src
