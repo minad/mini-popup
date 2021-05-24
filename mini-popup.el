@@ -81,6 +81,7 @@
 (defvar mini-popup--frame nil)
 (defvar-local mini-popup--overlay nil)
 
+;;;###autoload
 (define-minor-mode mini-popup-mode
   "Mini popup."
   :global t
