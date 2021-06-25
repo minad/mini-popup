@@ -129,10 +129,10 @@
 (defun mini-popup--setup-buffer ()
   "Setup minibuffer local variables."
   (setq-local mode-line-format nil
-              resize-mini-windows nil
               header-line-format nil
               tab-line-format nil
               frame-title-format ""
+              resize-mini-windows nil
               cursor-in-non-selected-windows 'box
               cursor-type '(bar . 0)
               show-trailing-whitespace nil
