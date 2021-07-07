@@ -19,5 +19,6 @@ Install with ~package-install-from-file~ and enable with ~M-x mini-popup-mode RE
                   (apply args))))
 
   ;; Ensure that the popup is updated after refresh (Consult-specific)
-  (add-hook 'consult--completion-refresh-hook #'mini-popup--setup 99)
+  (add-hook 'consult--completion-refresh-hook
+            (lambda (&rest _) (mini-popup--setup)) 99)
 #+end_src
