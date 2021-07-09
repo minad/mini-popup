@@ -110,6 +110,7 @@
   (run-at-time 0 nil #'mini-popup--hide))
 
 (defun mini-popup--hide ()
+  "Hide popup frame."
   (when mini-popup-mode
     (let ((win (active-minibuffer-window)))
       (if win
@@ -184,6 +185,7 @@
     (make-frame-visible mini-popup--frame)))
 
 (defun mini-popup--setup-overlay ()
+  "Setup minibuffer overlay, which pushes the minibuffer content down."
   (let ((pt (point)))
     (with-selected-window (frame-root-window mini-popup--frame)
       (goto-char pt)))
