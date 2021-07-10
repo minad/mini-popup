@@ -78,6 +78,22 @@
     (no-special-glyphs . t)
     (desktop-dont-save . t)))
 
+(defvar mini-popup--buffer-parameters
+  '((mode-line-format . nil)
+    (header-line-format . nil)
+    (tab-line-format . nil)
+    (frame-title-format . "")
+    (resize-mini-windows . nil)
+    (cursor-in-non-selected-windows . box)
+    (cursor-type . (bar . 0))
+    (show-trailing-whitespace . nil)
+    (display-line-numbers . nil)
+    (left-fringe-width . nil)
+    (right-fringe-width . nil)
+    (left-margin-width . 0)
+    (right-margin-width . 0)
+    (fringes-outside-margins . 0)))
+
 (defvar mini-popup--frame nil)
 (defvar-local mini-popup--overlay nil)
 
@@ -129,20 +145,8 @@
 
 (defun mini-popup--setup-buffer ()
   "Setup minibuffer local variables."
-  (setq-local mode-line-format nil
-              header-line-format nil
-              tab-line-format nil
-              frame-title-format ""
-              resize-mini-windows nil
-              cursor-in-non-selected-windows 'box
-              cursor-type '(bar . 0)
-              show-trailing-whitespace nil
-              display-line-numbers nil
-              left-fringe-width nil
-              right-fringe-width nil
-              left-margin-width 0
-              right-margin-width 0
-              fringes-outside-margins 0)
+  (dolist (var mini-popup--buffer-parameters)
+    (set (make-local-variable (car var)) (cdr var)))
   (add-hook 'post-command-hook #'mini-popup--setup 99 'local))
 
 ;; Function adapted from posframe.el by tumashu
