@@ -83,6 +83,7 @@
     (header-line-format . nil)
     (tab-line-format . nil)
     (frame-title-format . "")
+    (truncate-lines . t)
     (resize-mini-windows . nil)
     (cursor-in-non-selected-windows . box)
     (cursor-type . (bar . 0))
@@ -93,6 +94,19 @@
     (left-margin-width . 0)
     (right-margin-width . 0)
     (fringes-outside-margins . 0)))
+
+(defvar mini-popup--mouse-ignore-map
+  (let ((map (make-sparse-keymap)))
+    (dolist (k '(mouse-1 down-mouse-1 drag-mouse-1 double-mouse-1 triple-mouse-1
+                 mouse-2 down-mouse-2 drag-mouse-2 double-mouse-2 triple-mouse-2
+                 mouse-3 down-mouse-3 drag-mouse-3 double-mouse-3 triple-mouse-3
+                 mouse-4 down-mouse-4 drag-mouse-4 double-mouse-4 triple-mouse-4
+                 mouse-5 down-mouse-5 drag-mouse-5 double-mouse-5 triple-mouse-5
+                 mouse-6 down-mouse-6 drag-mouse-6 double-mouse-6 triple-mouse-6
+                 mouse-7 down-mouse-7 drag-mouse-7 double-mouse-7 triple-mouse-7))
+      (define-key map (vector k) #'ignore))
+    map)
+  "Ignore all mouse clicks.")
 
 (defvar mini-popup--frame nil)
 (defvar-local mini-popup--overlay nil)
@@ -143,10 +157,16 @@
                       (funcall mini-popup--height-function)
                       nil 'pixelwise))))
 
+(defun mini-popup--popup-redirect-focus ()
+  "Redirect focus from popup."
+  (redirect-frame-focus mini-popup--frame (frame-parent mini-popup--frame)))
+
 (defun mini-popup--setup-buffer ()
   "Setup minibuffer local variables."
   (dolist (var mini-popup--buffer-parameters)
     (set (make-local-variable (car var)) (cdr var)))
+  (use-local-map (make-composed-keymap (list mini-popup--mouse-ignore-map) (current-local-map)))
+  (add-hook 'pre-command-hook #'mini-popup--popup-redirect-focus nil 'local)
   (add-hook 'post-command-hook #'mini-popup--setup 99 'local))
 
 ;; Function adapted from posframe.el by tumashu
