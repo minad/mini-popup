@@ -211,9 +211,7 @@
 
 (defun mini-popup--setup-overlay ()
   "Setup minibuffer overlay, which pushes the minibuffer content down."
-  (let ((pt (point)))
-    (with-selected-window (frame-root-window mini-popup--frame)
-      (goto-char pt)))
+  (set-window-point (frame-root-window mini-popup--frame) (point))
   (setq mini-popup--overlay (make-overlay (point-max) (point-max) nil t t))
   (overlay-put mini-popup--overlay 'window (selected-window))
   (overlay-put mini-popup--overlay 'priority 1000)
