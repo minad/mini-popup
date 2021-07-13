@@ -153,6 +153,7 @@
     (let ((window-min-height 1)
           (window-min-width 1)
           (frame-resize-pixelwise t))
+      (setq-local truncate-lines (< (point) (* 0.8 (frame-width mini-popup--frame))))
       (set-frame-height mini-popup--frame
                       (funcall mini-popup--height-function)
                       nil 'pixelwise))))
