@@ -54,6 +54,7 @@
 
 (defvar mini-popup--frame-parameters
   '((no-accept-focus . t)
+    (no-focus-on-map . t)
     (min-width . t)
     (min-height . t)
     (top . 0.25)
