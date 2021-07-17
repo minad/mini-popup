@@ -200,10 +200,8 @@
     ;; XXX HACK Setting the same frame-parameter/face-background is not a nop (BUG!).
     ;; Check explicitly before applying the setting.
     ;; Without the check, the frame flickers on Mac.
-    ;; With the check, the inner frame sometimes does not get updated sometimes (BUG!).
-    (let ((new (face-attribute 'mini-popup-background :background)))
-      (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
-	(set-frame-parameter mini-popup--frame 'background-color new)))
+    ;; XXX HACK We have to apply the face background before adjusting the frame parameter,
+    ;; otherwise the border is not updated (BUG!).
     (let* ((face (if (facep 'child-frame-border) 'child-frame-border 'internal-border))
 	   (new (face-attribute 'mini-popup-border :background)))
       (unless (equal (face-attribute face :background mini-popup--frame) new)
@@ -211,6 +209,9 @@
     (let ((new (face-attribute 'mini-popup-background :background)))
       (unless (equal (face-attribute 'fringe :background mini-popup--frame) new)
 	(set-face-background 'fringe new mini-popup--frame)))
+    (let ((new (face-attribute 'mini-popup-background :background)))
+      (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
+	(set-frame-parameter mini-popup--frame 'background-color new)))
     (set-window-buffer (frame-root-window mini-popup--frame) (current-buffer))
     (mini-popup--resize)
     (make-frame-visible mini-popup--frame)))
