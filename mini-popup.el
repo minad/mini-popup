@@ -32,6 +32,7 @@
 
 (defgroup mini-popup nil
   "Mini popup."
+  :group 'minibuffer
   :group 'convenience
   :prefix "mini-popup-")
 
