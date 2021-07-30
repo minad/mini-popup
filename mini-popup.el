@@ -84,6 +84,7 @@
   '((mode-line-format . nil)
     (header-line-format . nil)
     (tab-line-format . nil)
+    (tab-bar-format . nil) ;; Emacs 28
     (frame-title-format . "")
     (truncate-lines . t)
     (resize-mini-windows . nil)
