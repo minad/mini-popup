@@ -209,7 +209,10 @@
     (let ((new (face-attribute 'mini-popup-background :background)))
       (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
 	(set-frame-parameter mini-popup--frame 'background-color new)))
-    (set-window-buffer (frame-root-window mini-popup--frame) (current-buffer))
+    (let ((win (frame-root-window mini-popup--frame)))
+      (set-window-buffer win (current-buffer))
+      ;; Mark window as dedicated to prevent frame reuse
+      (set-window-dedicated-p win t))
     (mini-popup--resize)
     (make-frame-visible mini-popup--frame)))
 
