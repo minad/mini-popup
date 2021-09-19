@@ -212,7 +212,10 @@
     (let ((win (frame-root-window mini-popup--frame)))
       (set-window-buffer win (current-buffer))
       ;; Mark window as dedicated to prevent frame reuse
-      (set-window-dedicated-p win t))
+      (set-window-dedicated-p win t)
+      ;; Disallow selection of root window
+      (set-window-parameter win 'no-delete-other-windows t)
+      (set-window-parameter win 'no-other-window t))
     (mini-popup--resize)
     (make-frame-visible mini-popup--frame)))
 
