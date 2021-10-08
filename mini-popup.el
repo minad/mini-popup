@@ -37,10 +37,8 @@
   :prefix "mini-popup-")
 
 (defface mini-popup-background
-  '((((class color) (min-colors 88) (background dark))
-     :background "#191a1b")
-    (((class color) (min-colors 88) (background light))
-     :background "#f0f0f0")
+  '((((class color) (min-colors 88) (background dark)) :background "#191a1b")
+    (((class color) (min-colors 88) (background light)) :background "#f0f0f0")
     (t :background "gray"))
   "Face used to for the popup background.")
 
