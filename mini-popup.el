@@ -40,7 +40,7 @@
   '((((class color) (min-colors 88) (background dark)) :background "#191a1b")
     (((class color) (min-colors 88) (background light)) :background "#f0f0f0")
     (t :background "gray"))
-  "Face used to for the popup background.")
+  "Face used for the popup background.")
 
 (defface mini-popup-border
   '((((class color) (min-colors 88) (background dark)) :background "#323232")
