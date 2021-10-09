@@ -110,7 +110,7 @@
 ;;;###autoload
 (define-minor-mode mini-popup-mode
   "Mini popup."
-  :global t
+  :global t :group 'mini-popup
   (if mini-popup-mode
       (progn
         (add-hook 'minibuffer-setup-hook #'mini-popup--setup)
