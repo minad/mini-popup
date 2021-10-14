@@ -73,7 +73,6 @@
     (unsplittable . t)
     (undecorated . t)
     (cursor-type . t)
-    (minibuffer . nil)
     (visibility . nil)
     (no-special-glyphs . t)
     (desktop-dont-save . t)))
@@ -187,6 +186,7 @@
       (when mini-popup--frame (delete-frame mini-popup--frame))
       (setq mini-popup--frame (make-frame
                                `((parent-frame . ,(window-frame))
+                                 (minibuffer . ,(minibuffer-window (window-frame)))
                                  (line-spacing . ,line-spacing)
                                  ;; Set `internal-border-width' for Emacs 27
                                  (internal-border-width
