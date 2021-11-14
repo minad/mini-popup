@@ -36,11 +36,11 @@
   :group 'convenience
   :prefix "mini-popup-")
 
-(defface mini-popup-background
+(defface mini-popup-default
   '((((class color) (min-colors 88) (background dark)) :background "#191a1b")
     (((class color) (min-colors 88) (background light)) :background "#f0f0f0")
     (t :background "gray"))
-  "Face used for the popup background.")
+  "Default face used for the popup, in particular the background and foreground color.")
 
 (defface mini-popup-border
   '((((class color) (min-colors 88) (background dark)) :background "#323232")
@@ -93,6 +93,7 @@
     (right-fringe-width . nil)
     (left-margin-width . 0)
     (right-margin-width . 0)
+    (face-remapping-alist (default mini-popup-default))
     (fringes-outside-margins . 0)))
 
 (defvar mini-popup--mouse-ignore-map
@@ -201,10 +202,10 @@
 	   (new (face-attribute 'mini-popup-border :background nil 'default)))
       (unless (equal (face-attribute face :background mini-popup--frame 'default) new)
 	(set-face-background face new mini-popup--frame)))
-    (let ((new (face-attribute 'mini-popup-background :background nil 'default)))
+    (let ((new (face-attribute 'mini-popup-default :background nil 'default)))
       (unless (equal (face-attribute 'fringe :background mini-popup--frame 'default) new)
 	(set-face-background 'fringe new mini-popup--frame)))
-    (let ((new (face-attribute 'mini-popup-background :background nil 'default)))
+    (let ((new (face-attribute 'mini-popup-default :background nil 'default)))
       (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
 	(set-frame-parameter mini-popup--frame 'background-color new)))
     (let ((win (frame-root-window mini-popup--frame)))
