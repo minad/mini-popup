@@ -70,6 +70,8 @@
     (tool-bar-lines . 0)
     (tab-bar-lines . 0)
     (no-other-frame . t)
+    (no-other-window . t)
+    (no-delete-other-windows . t)
     (unsplittable . t)
     (undecorated . t)
     (cursor-type . t)
@@ -211,10 +213,7 @@
     (let ((win (frame-root-window mini-popup--frame)))
       (set-window-buffer win (current-buffer))
       ;; Mark window as dedicated to prevent frame reuse
-      (set-window-dedicated-p win t)
-      ;; Disallow selection of root window
-      (set-window-parameter win 'no-delete-other-windows t)
-      (set-window-parameter win 'no-other-window t))
+      (set-window-dedicated-p win t))
     (mini-popup--resize)
     (make-frame-visible mini-popup--frame)))
 
