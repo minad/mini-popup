@@ -2,6 +2,8 @@
 #+author: Daniel Mendler
 #+language: en
 
+#+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://github.com/minad/corfu/blob/screenshots/emacs.svg?raw=true"/></a>
+
 Install with ~package-install-from-file~ and enable with ~M-x mini-popup-mode RET~.
 
 #+begin_src elisp
