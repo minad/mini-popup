@@ -95,7 +95,7 @@
     (right-fringe-width . nil)
     (left-margin-width . 0)
     (right-margin-width . 0)
-    (face-remapping-alist (default mini-popup-default))
+    (face-remapping-alist (default (:filtered (:window mini-popup t) mini-popup-default)))
     (fringes-outside-margins . 0)))
 
 (defvar mini-popup--mouse-ignore-map
@@ -107,7 +107,6 @@
   "Ignore all mouse clicks.")
 
 (defvar mini-popup--frame nil)
-(defvar-local mini-popup--overlay nil)
 
 ;;;###autoload
 (define-minor-mode mini-popup-mode
@@ -125,12 +124,10 @@
 
 (defun mini-popup--setup ()
   "Minibuffer setup hook."
-  (when mini-popup--overlay
-    (delete-overlay mini-popup--overlay))
   (when mini-popup-mode
     (mini-popup--setup-buffer)
     (mini-popup--setup-frame)
-    (mini-popup--setup-overlay)))
+    (mini-popup--setup-scroll)))
 
 (defun mini-popup--exit ()
   "Minibuffer exit hook."
@@ -211,21 +208,18 @@
       (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
 	(set-frame-parameter mini-popup--frame 'background-color new)))
     (let ((win (frame-root-window mini-popup--frame)))
+      (set-window-parameter win 'mini-popup t)
       (set-window-buffer win (current-buffer))
       ;; Mark window as dedicated to prevent frame reuse
       (set-window-dedicated-p win t))
     (mini-popup--resize)
     (make-frame-visible mini-popup--frame)))
 
-(defun mini-popup--setup-overlay ()
-  "Setup minibuffer overlay, which pushes the minibuffer content down."
+(defun mini-popup--setup-scroll ()
+  "Scroll minibuffer in order to hide the content."
   (set-window-point (frame-root-window mini-popup--frame) (point))
-  (setq mini-popup--overlay (make-overlay (point-max) (point-max) nil t t))
-  (overlay-put mini-popup--overlay 'window (selected-window))
-  (overlay-put mini-popup--overlay 'priority 1000)
-  (overlay-put mini-popup--overlay 'after-string "\n\n")
   (set-window-vscroll nil 100)
-  (window-resize nil (- (window-height))))
+  (window-resize nil (- (window-pixel-height)) nil nil 'pixelwise))
 
 (provide 'mini-popup)
 ;;; mini-popup.el ends here
