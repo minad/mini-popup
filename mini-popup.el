@@ -213,7 +213,10 @@
       ;; Mark window as dedicated to prevent frame reuse
       (set-window-dedicated-p win t))
     (mini-popup--resize)
-    (make-frame-visible mini-popup--frame)))
+    (make-frame-visible mini-popup--frame)
+    ;; HACK: Force redisplay, otherwise the popup somtimes
+    ;; does not display content.
+    (redisplay)))
 
 (defun mini-popup--setup-scroll ()
   "Scroll minibuffer in order to hide the content."
