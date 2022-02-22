@@ -163,7 +163,7 @@
     (set (make-local-variable (car var)) (cdr var)))
   (use-local-map (make-composed-keymap (list mini-popup--mouse-ignore-map) (current-local-map)))
   (add-hook 'pre-command-hook #'mini-popup--popup-redirect-focus nil 'local)
-  (add-hook 'post-command-hook #'mini-popup--setup 99 'local))
+  (add-hook 'post-command-hook #'mini-popup--setup nil 'local))
 
 ;; Function adapted from posframe.el by tumashu
 (defun mini-popup--setup-frame ()
@@ -198,15 +198,15 @@
     ;; XXX HACK We have to apply the face background before adjusting the frame parameter,
     ;; otherwise the border is not updated (BUG!).
     (let* ((face (if (facep 'child-frame-border) 'child-frame-border 'internal-border))
-	   (new (face-attribute 'mini-popup-border :background nil 'default)))
+           (new (face-attribute 'mini-popup-border :background nil 'default)))
       (unless (equal (face-attribute face :background mini-popup--frame 'default) new)
-	(set-face-background face new mini-popup--frame)))
+        (set-face-background face new mini-popup--frame)))
     (let ((new (face-attribute 'mini-popup-default :background nil 'default)))
       (unless (equal (face-attribute 'fringe :background mini-popup--frame 'default) new)
-	(set-face-background 'fringe new mini-popup--frame)))
+        (set-face-background 'fringe new mini-popup--frame)))
     (let ((new (face-attribute 'mini-popup-default :background nil 'default)))
       (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
-	(set-frame-parameter mini-popup--frame 'background-color new)))
+        (set-frame-parameter mini-popup--frame 'background-color new)))
     (let ((win (frame-root-window mini-popup--frame)))
       (set-window-parameter win 'mini-popup t)
       (set-window-buffer win (current-buffer))
