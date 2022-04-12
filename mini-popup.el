@@ -187,7 +187,6 @@
       (setq mini-popup--frame (make-frame
                                `((parent-frame . ,(window-frame))
                                  (minibuffer . ,(minibuffer-window (window-frame)))
-                                 (line-spacing . ,line-spacing)
                                  ;; Set `internal-border-width' for Emacs 27
                                  (internal-border-width
                                   . ,(alist-get 'child-frame-border-width mini-popup--frame-parameters))
