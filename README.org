@@ -6,7 +6,7 @@
 
 Install with ~package-install-from-file~ and enable with ~M-x mini-popup-mode RET~.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   ;; Configure a height function (Example for Vertico)
   (defun mini-popup-height-resize ()
     (* (1+ (min vertico--total vertico-count)) (default-line-height)))
