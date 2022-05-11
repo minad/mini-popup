@@ -153,16 +153,11 @@
                       (funcall mini-popup--height-function)
                       nil 'pixelwise))))
 
-(defun mini-popup--popup-redirect-focus ()
-  "Redirect focus from popup."
-  (redirect-frame-focus mini-popup--frame (frame-parent mini-popup--frame)))
-
 (defun mini-popup--setup-buffer ()
   "Setup minibuffer local variables."
   (dolist (var mini-popup--buffer-parameters)
     (set (make-local-variable (car var)) (cdr var)))
   (use-local-map (make-composed-keymap (list mini-popup--mouse-ignore-map) (current-local-map)))
-  (add-hook 'pre-command-hook #'mini-popup--popup-redirect-focus nil 'local)
   (add-hook 'post-command-hook #'mini-popup--setup nil 'local))
 
 ;; Function adapted from posframe.el by tumashu
@@ -180,13 +175,14 @@
             (string-match-p "gnome\\|cinnamon" (or (getenv "XDG_CURRENT_DESKTOP")
                                                    (getenv "DESKTOP_SESSION") ""))
             'resize-mode)))
-        (after-make-frame-functions))
+        (after-make-frame-functions)
+        (parent (window-frame)))
     (unless (and (frame-live-p mini-popup--frame)
-                 (eq (frame-parent mini-popup--frame) (window-frame)))
+                 (eq (frame-parent mini-popup--frame) parent))
       (when mini-popup--frame (delete-frame mini-popup--frame))
       (setq mini-popup--frame (make-frame
-                               `((parent-frame . ,(window-frame))
-                                 (minibuffer . ,(minibuffer-window (window-frame)))
+                               `((parent-frame . ,parent)
+                                 (minibuffer . ,(minibuffer-window parent))
                                  ;; Set `internal-border-width' for Emacs 27
                                  (internal-border-width
                                   . ,(alist-get 'child-frame-border-width mini-popup--frame-parameters))
@@ -216,7 +212,8 @@
       ;; HACK: Force redisplay, otherwise the popup somtimes
       ;; does not display content.
       (redisplay)
-      (make-frame-visible mini-popup--frame))))
+      (make-frame-visible mini-popup--frame))
+    (redirect-frame-focus mini-popup--frame parent)))
 
 (defun mini-popup--setup-scroll ()
   "Scroll minibuffer in order to hide the content."
