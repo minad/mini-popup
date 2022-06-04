@@ -96,7 +96,11 @@
     (left-margin-width . 0)
     (right-margin-width . 0)
     (face-remapping-alist (default (:filtered (:window mini-popup t) mini-popup-default)))
-    (fringes-outside-margins . 0)))
+    (fringes-outside-margins . 0)
+    (fringe-indicator-alist . nil)
+    (indicate-empty-lines . nil)
+    (indicate-unused-lines . nil)
+    (indicate-buffer-boundaries . nil)))
 
 (defvar mini-popup--mouse-ignore-map
   (let ((map (make-sparse-keymap)))
