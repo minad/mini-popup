@@ -99,7 +99,6 @@
     (fringes-outside-margins . 0)
     (fringe-indicator-alist . nil)
     (indicate-empty-lines . nil)
-    (indicate-unused-lines . nil)
     (indicate-buffer-boundaries . nil)))
 
 (defvar mini-popup--mouse-ignore-map
