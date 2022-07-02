@@ -70,8 +70,6 @@
     (tool-bar-lines . 0)
     (tab-bar-lines . 0)
     (no-other-frame . t)
-    (no-other-window . t)
-    (no-delete-other-windows . t)
     (unsplittable . t)
     (undecorated . t)
     (cursor-type . t)
@@ -205,8 +203,11 @@
       (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
         (set-frame-parameter mini-popup--frame 'background-color new)))
     (let ((win (frame-root-window mini-popup--frame)))
-      (set-window-parameter win 'mini-popup t)
       (set-window-buffer win (current-buffer))
+      (set-window-parameter win 'mini-popup t)
+      ;; Disallow selection of root window
+      (set-window-parameter win 'no-delete-other-windows t)
+      (set-window-parameter win 'no-other-window t)
       ;; Mark window as dedicated to prevent frame reuse
       (set-window-dedicated-p win t))
     (mini-popup--resize)
