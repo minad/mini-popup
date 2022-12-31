@@ -161,21 +161,25 @@
   (use-local-map (make-composed-keymap (list mini-popup--mouse-ignore-map) (current-local-map)))
   (add-hook 'post-command-hook #'mini-popup--setup nil 'local))
 
+(defvar x-gtk-resize-child-frames) ;; Not present on non-gtk builds
+(defvar mini-popup--gtk-resize-child-frames
+  (let ((case-fold-search t))
+    (and
+     ;; XXX HACK to fix resizing on gtk3/gnome taken from posframe.el
+     ;; More information:
+     ;; * https://github.com/minad/corfu/issues/17
+     ;; * https://gitlab.gnome.org/GNOME/mutter/-/issues/840
+     ;; * https://lists.gnu.org/archive/html/emacs-devel/2020-02/msg00001.html
+     (string-match-p "gtk3" system-configuration-features)
+     (string-match-p "gnome\\|cinnamon"
+                     (or (getenv "XDG_CURRENT_DESKTOP")
+                         (getenv "DESKTOP_SESSION") ""))
+     'resize-mode)))
+
 ;; Function adapted from posframe.el by tumashu
 (defun mini-popup--setup-frame ()
   "Show child frame."
-  (let ((x-gtk-resize-child-frames
-         (let ((case-fold-search t))
-           (and
-            ;; XXX Hack to fix resizing on gtk3/gnome taken from posframe.el
-            ;; More information:
-            ;; * https://github.com/minad/mini-popup/issues/17
-            ;; * https://gitlab.gnome.org/GNOME/mutter/-/issues/840
-            ;; * https://lists.gnu.org/archive/html/emacs-devel/2020-02/msg00001.html
-            (string-match-p "gtk3" system-configuration-features)
-            (string-match-p "gnome\\|cinnamon" (or (getenv "XDG_CURRENT_DESKTOP")
-                                                   (getenv "DESKTOP_SESSION") ""))
-            'resize-mode)))
+  (let ((x-gtk-resize-child-frames mini-popup--gtk-resize-child-frames)
         (after-make-frame-functions)
         (parent (window-frame)))
     (unless (and (frame-live-p mini-popup--frame)
