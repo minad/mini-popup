@@ -1,6 +1,6 @@
 ;;; mini-popup.el --- Show the minibuffer in a popup -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021-2023 Daniel Mendler
+;; Copyright (C) 2021-2025 Daniel Mendler
 
 ;; Author: Daniel Mendler <mail@daniel-mendler.de>
 ;; Maintainer: Daniel Mendler <mail@daniel-mendler.de>
