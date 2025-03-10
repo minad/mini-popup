@@ -51,6 +51,9 @@
 (defvar mini-popup--height-function nil
   "Height function.")
 
+(defvar mini-popup-excluded-commands nil
+  "List of commands for which mini-popup should not activate.")
+
 (defvar mini-popup--frame-parameters
   '((no-accept-focus . t)
     (no-focus-on-map . t)
@@ -125,7 +128,8 @@
 
 (defun mini-popup--setup ()
   "Minibuffer setup hook."
-  (when mini-popup-mode
+  (when (and mini-popup-mode
+             (not (memq this-command mini-popup-excluded-commands)))
     (mini-popup--setup-buffer)
     (mini-popup--setup-frame)
     (mini-popup--setup-scroll)))
