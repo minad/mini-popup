@@ -1,15 +1,15 @@
 ;;; mini-popup.el --- Show the minibuffer in a popup -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021-2026 Daniel Mendler
+;; Copyright (C) 2021-2025 Daniel Mendler
 
 ;; Author: Daniel Mendler <mail@daniel-mendler.de>
 ;; Maintainer: Daniel Mendler <mail@daniel-mendler.de>
 ;; Created: 2021
 ;; Version: 0.1
-;; Package-Requires: ((emacs "27.1"))
-;; Homepage: https://github.com/minad/mini-popup
+;; Package-Requires: ((emacs "28.1") (compat "30"))
+;; URL: https://github.com/minad/mini-popup
 
-;; This file is part of GNU Emacs.
+;; This file is not part of GNU Emacs.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 ;; Mini popup
 
 ;;; Code:
+
+(require 'compat)
 
 (defgroup mini-popup nil
   "Mini popup."
@@ -61,6 +63,8 @@
     (width . 0.8)
     (height . 0.25)
     (border-width . 0)
+    (outer-border-width . 0)
+    (internal-border-width . 1)
     (child-frame-border-width . 1)
     (left-fringe . 20)
     (right-fringe . 20)
@@ -69,11 +73,11 @@
     (menu-bar-lines . 0)
     (tool-bar-lines . 0)
     (tab-bar-lines . 0)
+    (tab-bar-lines-keep-state . t)
     (no-other-frame . t)
     (unsplittable . t)
     (undecorated . t)
     (cursor-type . t)
-    (visibility . nil)
     (no-special-glyphs . t)
     (desktop-dont-save . t)))
 
@@ -81,7 +85,7 @@
   '((mode-line-format . nil)
     (header-line-format . nil)
     (tab-line-format . nil)
-    (tab-bar-format . nil) ;; Emacs 28
+    (tab-bar-format . nil)
     (frame-title-format . "")
     (truncate-lines . t)
     (resize-mini-windows . nil)
@@ -103,7 +107,7 @@
   (let ((map (make-sparse-keymap)))
     (dotimes (i 7)
       (dolist (k '(mouse down-mouse drag-mouse double-mouse triple-mouse))
-        (define-key map (vector (intern (format "%s-%s" k (1+ i)))) #'ignore)))
+        (keymap-set map (format "<%s-%s>" k (1+ i)) #'ignore)))
     map)
   "Ignore all mouse clicks.")
 
@@ -180,32 +184,48 @@
 (defun mini-popup--setup-frame ()
   "Show child frame."
   (let ((x-gtk-resize-child-frames mini-popup--gtk-resize-child-frames)
+        (before-make-frame-hook)
         (after-make-frame-functions)
         (parent (window-frame)))
     (unless (and (frame-live-p mini-popup--frame)
-                 (eq (frame-parent mini-popup--frame) parent))
+                 (eq (frame-parent mini-popup--frame)
+                     (and (not (bound-and-true-p exwm--connection)) parent))
+                 (window-live-p (frame-root-window mini-popup--frame)))
       (when mini-popup--frame (delete-frame mini-popup--frame))
       (setq mini-popup--frame (make-frame
                                `((parent-frame . ,parent)
                                  (minibuffer . ,(minibuffer-window parent))
-                                 ;; Set `internal-border-width' for Emacs 27
-                                 (internal-border-width
-                                  . ,(alist-get 'child-frame-border-width mini-popup--frame-parameters))
+                                 (visibility . nil)
                                  ,@mini-popup--frame-parameters))))
     ;; XXX HACK Setting the same frame-parameter/face-background is not a nop (BUG!).
     ;; Check explicitly before applying the setting.
     ;; Without the check, the frame flickers on Mac.
     ;; XXX HACK We have to apply the face background before adjusting the frame parameter,
     ;; otherwise the border is not updated (BUG!).
-    (let* ((face (if (facep 'child-frame-border) 'child-frame-border 'internal-border))
-           (new (face-attribute 'mini-popup-border :background nil 'default)))
-      (unless (equal (face-attribute face :background mini-popup--frame 'default) new)
-        (set-face-background face new mini-popup--frame)))
+    (let ((new (face-attribute 'mini-popup-border :background nil 'default)))
+      (unless (equal (face-attribute 'internal-border :background mini-popup--frame 'default) new)
+        (set-face-background 'internal-border new mini-popup--frame))
+      ;; XXX The Emacs Mac Port does not support `internal-border', we also have
+      ;; to set `child-frame-border'.
+      (unless (or (not (facep 'child-frame-border))
+                  (equal (face-attribute 'child-frame-border :background mini-popup--frame 'default) new))
+        (set-face-background 'child-frame-border new mini-popup--frame)))
     (let ((new (face-attribute 'mini-popup-default :background nil 'default)))
       (unless (equal (face-attribute 'fringe :background mini-popup--frame 'default) new)
-        (set-face-background 'fringe new mini-popup--frame))
-      (unless (equal (frame-parameter mini-popup--frame 'background-color) new)
-        (set-frame-parameter mini-popup--frame 'background-color new)))
+        (set-face-background 'fringe new mini-popup--frame)))
+    ;; Reset frame parameters if they changed.  For example `tool-bar-mode'
+    ;; overrides the parameter `tool-bar-lines' for every frame, including child
+    ;; frames.  The child frame API is a pleasure to work with.  It is full of
+    ;; lovely surprises.
+    (when-let ((params (frame-parameters mini-popup--frame))
+               (reset (seq-remove
+                       (lambda (p)
+                         (or (memq (car p) '(top left width height))
+                             (equal (alist-get (car p) params) (cdr p))))
+                       `((background-color
+                          . ,(face-attribute 'mini-popup-default :background nil 'default))
+                         ,@mini-popup--frame-parameters))))
+      (modify-frame-parameters mini-popup--frame reset))
     (let ((win (frame-root-window mini-popup--frame)))
       (set-window-buffer win (current-buffer))
       (set-window-parameter win 'mini-popup t)
@@ -214,13 +234,14 @@
       (set-window-parameter win 'no-other-window t)
       ;; Mark window as dedicated to prevent frame reuse
       (set-window-dedicated-p win t))
+    (redirect-frame-focus mini-popup--frame parent)
     (mini-popup--resize)
-    (unless (frame-visible-p mini-popup--frame)
-      ;; HACK: Force redisplay, otherwise the popup somtimes
-      ;; does not display content.
-      (redisplay)
-      (make-frame-visible mini-popup--frame))
-    (redirect-frame-focus mini-popup--frame parent)))
+    (make-frame-visible mini-popup--frame)
+    ;; Unparent child frame if EXWM is used, otherwise EXWM buffers are drawn on
+    ;; top of the Corfu child frame.
+    (when (and (bound-and-true-p exwm--connection) (frame-parent mini-popup--frame))
+      (set-frame-parameter mini-popup--frame 'parent-frame nil))
+    mini-popup--frame))
 
 (defun mini-popup--setup-scroll ()
   "Scroll minibuffer in order to hide the content."
